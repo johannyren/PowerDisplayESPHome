@@ -2,7 +2,7 @@
 
 This is a small display that shows the current electricity consumption, together with a graph of the today's electricity price, using either NordPool or Tibber. The software pulls the data from a Home Assistant instance, so all sources must be available there.
 
-This is a port of the previous repo [PowerDisplayHomeAssistant](https://github.com/johannyren/PowerDisplayHomeAssistant) to ESPHome. The ESPHome version requires an ESP32 microcontroller, as the ESPHome ILI9341 library seem to require more memory than is available ina a Wemos D1 mini.
+This is a port of the previous repo [PowerDisplayHomeAssistant](https://github.com/johannyren/PowerDisplayHomeAssistant) to ESPHome. The ESPHome version requires an ESP32 microcontroller, as the ESPHome ILI9341 library seems to require more memory than is available in a Wemos D1 mini.
 
 <p align="center">
   <img src="(https://github.com/johannyren/PowerDisplayHomeAssistant/blob/main/Images/Display1.jpg?raw=true)" width="350" title="Display">
