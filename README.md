@@ -50,6 +50,21 @@ Use the file power-display-esphome.yaml to create your ESPHome entity.
 ## Datasources and connection to Home Assistant
 Data sources from Home Assistant are defined in power-display-esphome.yaml
 
+It will require the HomeAssistant integration with NordPool (https://github.com/custom-components/nordpool), as well as a device that can read the current power usage from the power meter. 
+
+### Popular ESPHome implementations are:
+
+- Home Assistant Glow pulse counter. (https://klaasnicolaas.github.io/home-assistant-glow/)
+- ESPHome HAN port reader  (https://github.com/psvanstrom/esphome-p1reader)
+
+The implementation also expects a Utility Meter entity in Home Assistant. The following is an example to put in configuration.yaml:
+```
+ utility_meter:
+ produktion_huset_per_dag:
+   source: sensor.cumulative_active_export
+   cycle: daily
+```
+
 <!--
 ## Casing
 STL files are available for 3D printing a casing for the display. Two variants - one straight for putting on a wall, and one tilted, optimal for a desktop display.
