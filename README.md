@@ -52,4 +52,8 @@ Data sources from Home Assistant are defined in power-display-esphome.yaml
 ## Casing
 STL files are available for 3D printing a casing for the display. Two variants - one straight for putting on a wall, and one tilted, optimal for a desktop display.
 -->
+
+## Known issue
+ESPHome has a tendency to reboot whenever it loses WiFi connection, which seems to happen often on an ESP32. According to ESPHome documentation, this is a known issue with ESP32 devices. This will cause the display to blink every 15 minutes or so. The current values are saved to NVM (Non Volatile Memory) every minute, so that it can recover very quickly after reboot. 
+
     
