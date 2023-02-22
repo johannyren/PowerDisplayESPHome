@@ -6,7 +6,6 @@ esphome:
 
   includes:
     - power_display.h  
-    - my_preferences.h
 
 # Save values before shutting down
   on_shutdown:
@@ -170,7 +169,7 @@ sensor:
   # // From NordPool, but you can also use Tibber etc.
   - platform: homeassistant
     id: price_now
-    entity_id: sensor.electricity_price
+    entity_id: sensor.electricity_price_langhallagatan_51b
 
   # Utility meter template in HomeAssistant. See example below (goes into configuration.yaml in HA.)  
   - platform: homeassistant
