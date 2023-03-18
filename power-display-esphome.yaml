@@ -197,15 +197,30 @@ spi:
   clk_pin: 26 #SCL
   mosi_pin: 27 #SDA
 
+# Define a PWM output on the ESP32
+output:
+  - platform: ledc
+    pin: 25
+    id: gpio_backlight_pwm
+
+# Define a monochromatic, dimmable light for the backlight
+light:
+  - platform: monochromatic
+    output: gpio_backlight_pwm
+    name: "Power Display Backlight"
+    id: back_light
+    restore_mode: ALWAYS_ON
+    
+# Note: library has been renamed from ili9341 to ili9xxx in ESPHome 2023.3.0. Use old name if using older version
 display:
-  - platform: ili9341
+  - platform: ili9xxx
     model: TFT 2.4
     cs_pin: 13
     dc_pin: 14
-    led_pin: 25  ### see note below ###
     reset_pin: 33
     rotation: 180
     update_interval: 10s
+
 
     lambda: |-
 
