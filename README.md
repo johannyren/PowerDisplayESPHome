@@ -1,5 +1,7 @@
 # PowerDisplayESPHome
 
+**Note:** Requires ESPHome 2023.3.0 or later due to new breaking changes in ESPHome!
+
 This is a small display that shows the current electricity consumption, together with a graph of the today's electricity price, using either NordPool or Tibber. The software pulls the data from a Home Assistant instance, so all sources must be available there.
 
 This is a port of the previous repo [PowerDisplayHomeAssistant](https://github.com/johannyren/PowerDisplayHomeAssistant) to ESPHome. The ESPHome version allows for much more flexibility and ease of setup than the previous version, and gets its time directly from Home Assistant rather than ntp. This simplifies handling of Daylight Savings Time etc. It also allows for more fonts, as it uses Google fonts that supports non-English characters, and can be easily replaced as desired.
@@ -65,10 +67,15 @@ The implementation also expects a Utility Meter entity in Home Assistant. The fo
    cycle: daily
 ```
 
-<!--
+## Backlight entity
+PowerDisplayESPHome creates an entity in Home Assistant that can be used to control the brightness of the display, or turn it off with a schedule etc.
+
+![alt text](https://github.com/johannyren/PowerDisplayESPHome/blob/main/images/Backlight_entity.jpg?raw=true)
+
+
+
 ## Casing
-STL files are available for 3D printing a casing for the display. Two variants - one straight for putting on a wall, and one tilted, optimal for a desktop display.
--->
+STL files are available for 3D printing a casing for the display.
 
 ## Known issue
 ESPHome has a tendency to reboot whenever it loses WiFi connection, which seems to happen often on an ESP32. According to ESPHome documentation, this is a known issue with ESP32 devices. This will cause the display to blink every 15 minutes or so. The current values are saved to NVM (Non Volatile Memory) every minute, so that it can recover very quickly after reboot. 
