@@ -54,7 +54,7 @@ String LoadStringFromNvm(String key) {
 }
 
 // Global variables. Needed to retain values after reboot
-double currentPower, currentPrice, todayMaxPrice, dailyEnergy, accumulatedCost;
+double currentPower, currentPrice, todayMaxPrice, dailyEnergy;
 String TodaysPrices;
 
 void SaveValuesToNVM () {
@@ -68,8 +68,6 @@ void SaveValuesToNVM () {
 		SaveStringToNvm("TodaysPrices", TodaysPrices);
 	if (dailyEnergy != 0)
 		SaveValueToNvm("DailyEnergy", dailyEnergy);
-	if (accumulatedCost != 0)
-		SaveValueToNvm("AccumulatedCost", accumulatedCost);	
 }	
 	
 // PowerDisplay class:
@@ -152,7 +150,7 @@ public:
 			TomorrowsPrices = prices;
 		}
 		
-	void SetDailyEnergy(double energy) {
+	void WriteDailyEnergy(double energy) {
 		if (!isnan(energy)) {
 			dailyEnergy = energy;
 		}
@@ -193,7 +191,7 @@ public:
 	// Write energy consumed so far today
 	void WriteDailyAmount(display::DisplayBuffer *buff, int x, int y, Color color = COLOR_ON) {
 		if (isnan(dailyEnergy) || dailyEnergy == 0) {			
-			dailyEnergy = LoadValueFromNvm("DailyEnergy");
+			dailyEnergy = LoadValueFromNvm("DailyEnergy");		
 		}
 		buff->printf(x, y, &id(energy_text), color, TextAlign::BASELINE_CENTER, "Idag: %.1f kWh", dailyEnergy);
 		buff->printf(x, y+23, &id(energy_text), color, TextAlign::BASELINE_CENTER, "Kostnad: %.2f kr", CalculateAccumulatedCost(currentPrice, dailyEnergy));				
@@ -303,9 +301,6 @@ private:
 			return 0;
 		double nEnergyDelta = dailyEnergy - prevDailyEnergy; 	
 		prevDailyEnergy = dailyEnergy;
-		if (isnan(accumulatedCost) || accumulatedCost == 0) {
-			accumulatedCost = LoadValueFromNvm("AccumulatedCost");
-		
 		accumulatedCost += (nEnergyDelta * currentPrice);
 		//SaveValueToNvm("AccumulatedCost", accumulatedCost);
 		return accumulatedCost;
@@ -320,6 +315,8 @@ private:
 
 
 }; //class
+
+
 
 
 
