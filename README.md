@@ -8,9 +8,7 @@ This is a port of the previous repo [PowerDisplayHomeAssistant](https://github.c
 
 **Note:** The ESPHome version requires an ESP32 microcontroller, as the ESPHome ILI9341 library seems to require more memory than is available in a Wemos D1 mini.
 
-<p align="center">
-  <img src="(https://github.com/johannyren/PowerDisplayHomeAssistant/blob/main/Images/Display1.jpg?raw=true)" width="350" title="Display">
-</p>
+
 
 ![alt text](https://github.com/johannyren/PowerDisplayESPHome/blob/main/images/Display1.jpg?raw=true)
 
@@ -29,9 +27,6 @@ SDI(MOSI) -> 27
 SCK       -> 26
 LED       -> 25
 ```
-<p align="left">
-  <img src="(https://github.com/johannyren/PowerDisplayESPHome/blob/main/images/Wiring_ILI9341.jpg?raw=true)" title="ILI9341">
-</p>
 
 ![alt text](https://github.com/johannyren/PowerDisplayESPHome/blob/main/images/Wiring_ILI9341.jpg?raw=true)
 
