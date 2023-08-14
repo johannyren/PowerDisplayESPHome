@@ -75,14 +75,14 @@ class PowerDisplay : public Component {
 
 public:
 
-	void DisplayIcons (display::DisplayBuffer *buff, int x, int y) {
+	void DisplayIcons (display::Display *buff, int x, int y) {
 		if (currentPower >= 0)
 			buff->image(x, y, &id(grid_power));
 		else
 			buff->image(x, y, &id(solar_power));
 	}
 
-	void CreateGraph (display::DisplayBuffer *buff, int x, int y, int width, int  height, Color color = COLOR_ON) {
+	void CreateGraph (display::Display *buff, int x, int y, int width, int  height, Color color = COLOR_ON) {
 		setPos(x, y);
 		setWidth(width);
 		setHeigh(height);		
@@ -97,7 +97,7 @@ public:
 		yFactor = graphHeight / (yMax-yMin);
 	}
 	
-	void SetGraphGrid(display::DisplayBuffer *buff, double xLow, double xInterval, double yLow, double yInterval, Color color = COLOR_ON) {
+	void SetGraphGrid(display::Display *buff, double xLow, double xInterval, double yLow, double yInterval, Color color = COLOR_ON) {
 		double xLabel=0, yLabel = 0;
 		double i2;
 		Color labelColor = COLOR_CSS_WHITESMOKE;
@@ -157,7 +157,7 @@ public:
 	}
 	
 	// Display current power usage
-	void WritePowerText(display::DisplayBuffer *buff, int x, int y) {
+	void WritePowerText(display::Display *buff, int x, int y) {
 		if (isnan(currentPower) || currentPower == 0)
 			currentPower = LoadValueFromNvm("CurrentPower");
 		if (isnan(currentPrice) || currentPrice == 0)
@@ -165,7 +165,7 @@ public:
 		buff->printf(x, y, &id(large_text), PriceColour(currentPrice), TextAlign::BASELINE_CENTER, "%.0f W", currentPower);		
 	}
 	// Display current price and the price level
-	void WritePriceText(display::DisplayBuffer *buff, int x, int y) {
+	void WritePriceText(display::Display *buff, int x, int y) {
 		
 		if (isnan(currentPrice) || currentPrice == 0)
 			currentPrice = LoadValueFromNvm("CurrentPrice");
@@ -179,17 +179,17 @@ public:
 		else if (inRange(currentPrice, NORMAL, EXPENSIVE)){price = NORMAL_TEXT;}
 		else if (inRange(currentPrice, CHEAP, NORMAL)){price = CHEAP_TEXT;}
 		else if (inRange(currentPrice, VERY_CHEAP, CHEAP)){price = VERY_CHEAP_TEXT;}
-		else if (inRange(currentPrice, 0, VERY_CHEAP)){price = BELOW_VERY_CHEAP_TEXT;} 		
+		else if (inRange(currentPrice, -100, VERY_CHEAP)){price = BELOW_VERY_CHEAP_TEXT;} 		
 		
 		buff->printf(x, y, &id(large_text), PriceColour(currentPrice), TextAlign::BASELINE_CENTER, "%s", price.c_str());		
 	}
 	// Write the timeline on the graph
-	void WriteTimeLine(display::DisplayBuffer *buff, double hour, double minute, Color color = COLOR_ON) {
+	void WriteTimeLine(display::Display *buff, double hour, double minute, Color color = COLOR_ON) {
 		double timeLineVal = hour + (minute/60);
 		buff->line(xPos + timeLineVal*xFactor, yPos, xPos + timeLineVal*xFactor, yPos+graphHeight, color);
 	}
 	// Write energy consumed so far today
-	void WriteDailyAmount(display::DisplayBuffer *buff, int x, int y, Color color = COLOR_ON) {
+	void WriteDailyAmount(display::Display *buff, int x, int y, Color color = COLOR_ON) {
 		if (isnan(dailyEnergy) || dailyEnergy == 0) {			
 			dailyEnergy = LoadValueFromNvm("DailyEnergy");		
 		}
@@ -198,7 +198,7 @@ public:
 	}
 
 	// Draw the graph
-	void DrawPriceGraph (display::DisplayBuffer *buff) {
+	void DrawPriceGraph (display::Display *buff) {
 		double lastprice = 0;
 		double price;
   
@@ -255,7 +255,7 @@ public:
 	
 	
 private:
-	display::DisplayBuffer *vbuff;
+	display::Display *vbuff;
 	
 	int graphWidth, graphHeight, xPos, yPos;
 	float xFactor, yFactor;
@@ -270,12 +270,12 @@ private:
 	void setWidth (int width) {graphWidth = width;}
 	void setHeigh(int height) {graphHeight = height;}
 	
-	void DrawGraphLine(display::DisplayBuffer *buff, double x1, double x2, double y1, double y2, Color color = COLOR_ON) {
+	void DrawGraphLine(display::Display *buff, double x1, double x2, double y1, double y2, Color color = COLOR_ON) {
 		buff->line(xPos + x1*xFactor, yPos+graphHeight-(y1*yFactor), xPos + x2*xFactor, yPos+graphHeight-(y2*yFactor), color);		
 //		ESP_LOGD("GraphGrid x1: ", String(xPos + x1*xFactor).c_str());
 	}
 
-	double AddPrice(display::DisplayBuffer *buff, int hour, double price, int lastHour, double lastPrice)	{
+	double AddPrice(display::Display *buff, int hour, double price, int lastHour, double lastPrice)	{
 		if(lastHour<0)
 			lastHour=0;	  
 		if(lastPrice==0)
@@ -292,7 +292,7 @@ private:
 		else if (inRange(nNewPrice, NORMAL, EXPENSIVE)){colour = COLOR_CSS_GREENYELLOW;}
 		else if (inRange(nNewPrice, CHEAP, NORMAL)){colour = COLOR_CSS_GREEN;}
 		else if (inRange(nNewPrice, VERY_CHEAP, CHEAP)){colour = COLOR_CSS_DARKGREEN;}
-		else if (inRange(nNewPrice, 0, VERY_CHEAP)){colour = COLOR_CSS_DARKGREEN;}     
+		else if (inRange(nNewPrice, -100, VERY_CHEAP)){colour = COLOR_CSS_DARKGREEN;}     
 		return colour; 
 	}
 	
