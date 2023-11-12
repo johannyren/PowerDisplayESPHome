@@ -226,28 +226,28 @@ display:
 
     lambda: |-
 
-     auto powerDisplay = new PowerDisplay();
+     static PowerDisplay powerDisplay;  
   
      // Unit is W - if your meter is reporting kW then it needs conversion (multiply value by 1000)
-     powerDisplay->SetCurrentPower((id(import_el).state-id(export_el).state));  // Use if using solar production
-     //powerDisplay->SetCurrentPower((id(import_el).state);                     // Use if not using any solar production
+     powerDisplay.SetCurrentPower((id(import_el).state - id(export_el).state));  // Use if using solar production
+     // powerDisplay.SetCurrentPower(id(import_el).state);  // Use if not using any solar production
 
-     powerDisplay->SetCurrentPrice(id(price_now).state);
-     powerDisplay->SetTodayMaxPrice(id(nordpool_max).state);
-     powerDisplay->SetTodaysPrices(id(nordpool_today).state.c_str());
-     powerDisplay->SetTomorrowsPrices(id(nordpool_tomorrow).state.c_str());
-     powerDisplay->WriteDailyEnergy(id(consumption_today).state);
-     powerDisplay->DisplayIcons(&it, 10, 10 );  
-     powerDisplay->WritePowerText(&it, 120, 40 );
-     powerDisplay->WriteDailyAmount(&it, 120, 75, id(COLOR_CSS_WHITESMOKE));
-     powerDisplay->CreateGraph(&it, 15, 115, 220, 100, my_grey);
-     powerDisplay->SetGraphScale(0, 24, 0 );
-     powerDisplay->SetGraphGrid(&it, 0, 2, 0, 1, my_grey);
-     powerDisplay->WriteTimeLine(&it, id(homeassistant_time).now().hour, id(homeassistant_time).now().minute, id(COLOR_CSS_WHITESMOKE));
-     powerDisplay->SetPrices("today");
-     powerDisplay->SetPrices("tomorrow");
-     powerDisplay->DrawPriceGraph(&it);
-     powerDisplay->WritePriceText(&it, 120, 297 );
+     powerDisplay.SetCurrentPrice(id(price_now).state);
+     powerDisplay.SetTodayMaxPrice(id(nordpool_max).state);
+     powerDisplay.SetTodaysPrices(id(nordpool_today).state.c_str());
+     powerDisplay.SetTomorrowsPrices(id(nordpool_tomorrow).state.c_str());
+     powerDisplay.WriteDailyEnergy(id(consumption_today).state);
+     powerDisplay.DisplayIcons(&it, 10, 10);
+     powerDisplay.WritePowerText(&it, 120, 40);
+     powerDisplay.WriteDailyAmount(&it, 120, 75, id(COLOR_CSS_WHITESMOKE));
+     powerDisplay.CreateGraph(&it, 15, 115, 220, 100, my_grey);
+     powerDisplay.SetGraphScale(0, 24, 0);
+     powerDisplay.SetGraphGrid(&it, 0, 2, 0, 1, my_grey);
+     powerDisplay.WriteTimeLine(&it, id(homeassistant_time).now().hour, id(homeassistant_time).now().minute, id(COLOR_CSS_WHITESMOKE));
+     powerDisplay.SetPrices("today");
+     powerDisplay.SetPrices("tomorrow");
+     powerDisplay.DrawPriceGraph(&it);
+     powerDisplay.WritePriceText(&it, 120, 297);
 
 # Save global values every 1 minute. This is to quickly resume from a reboot and retain calculated values.
 interval:
