@@ -211,10 +211,10 @@ public:
 						ss.ignore();
 				}
 		//  Uncomment the lines below to get log messages to show the contents of the Todays vector
-				for (auto it = PriceVector.begin(); it != PriceVector.end(); it++) { 
-					ss << *it << " ";
-				}
-			ESP_LOGD("TodaysPrices: ", ss.str().c_str());
+		//		for (auto it = PriceVector.begin(); it != PriceVector.end(); it++) { 
+		//			ss << *it << " ";
+		//		}
+		//	ESP_LOGD("TodaysPrices: ", ss.str().c_str());
 			}
 
 		}
@@ -235,10 +235,10 @@ public:
 						st.ignore();
 				}
 		//  Uncomment the lines below to get log messages to show the contents of the Tomorrow vector
-				for (auto it = PriceVectorTomorrow.begin(); it != PriceVectorTomorrow.end(); it++) { 
-					st << *it << " ";
-				}
-			ESP_LOGD("TomorrowsPrices: ", st.str().c_str());
+		//		for (auto it = PriceVectorTomorrow.begin(); it != PriceVectorTomorrow.end(); it++) { 
+		//			st << *it << " ";
+		//		}
+		//	ESP_LOGD("TomorrowsPrices: ", st.str().c_str());
 			}
 		}
 	}
