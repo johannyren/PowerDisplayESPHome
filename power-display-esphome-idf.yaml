@@ -9,12 +9,11 @@ esp32:
   framework:
     type: esp-idf
 
-
 # Enable logging
 logger:
   logs:
     component: ERROR
-	
+
 # Enable Home Assistant API
 api:
   encryption:
@@ -95,7 +94,6 @@ color:
     blue:  0.0000
     white: 0.0000
 
-
   # #adff2f
   # 173,255,47
   - id: COLOR_CSS_GREENYELLOW
@@ -162,15 +160,16 @@ sensor:
     id: price_now
     entity_id: sensor.electricity_price_langhallagatan_51b
 
-  # Utility meter template in HomeAssistant. See example below (goes into configuration.yaml in HA.)
-  # If you have a sensor from tibber, use that instead. 
+  # Accumulated cost from Tibber. 
   # For example entity_id: accumulated_consumption_langhallagatan_51b
+  # Else use a Utility meter template in HomeAssistant. See example below (goes into configuration.yaml in HA.)
   - platform: homeassistant
     id: consumption_today
     entity_id: accumulated_consumption_langhallagatan_51b
 
-  # If you have a sensor in home assistant for accumulated cost today. If not, remove the following lines.
-  # You also have to make changes below in the lambda according to the intructions in that section.
+  # If you don´t have this sensor, comment out the following lines.
+  # A calculation will then be made instead.
+  # You also have to make changes below in the lambda See that section for instructions.
   - platform: homeassistant
     id: accumulated_cost_today
     entity_id: sensor.accumulated_cost_langhallagatan_51b
@@ -181,7 +180,6 @@ sensor:
   #   source: sensor.cumulative_active_export
   #   cycle: daily
   
-
 text_sensor:
   - platform: homeassistant   # Nordpool
     id: nordpool_today
@@ -234,7 +232,7 @@ display:
           powerDisplay.SetCurrentPower((id(import_el).state - id(export_el).state));  // Use if using solar production
           // powerDisplay.SetCurrentPower(id(import_el).state);  // Use if not using any solar production
 
-          // powerDisplay.SetAccumulatedCostToday(id(accumulated_cost_today).state);  // Use if you have a sensor with the accumulated cost for today from Tibber
+          powerDisplay.SetAccumulatedCostToday(id(accumulated_cost_today).state);  // Comment out if you want this to be calculated instead
           
           powerDisplay.SetCurrentPrice(id(price_now).state);
           powerDisplay.SetTodayMaxPrice(id(nordpool_max).state);
@@ -262,7 +260,7 @@ display:
           // powerDisplay.SetCurrentPower((id(import_el).state - id(export_el).state));  // Use if using solar production
           powerDisplay.SetCurrentPower(id(import_el).state);  // Use if not using any solar production
 
-          // powerDisplay.SetAccumulatedCostToday(id(accumulated_cost_today).state);  // Use if you have a sensor with the accumulated cost for today from Tibber
+          powerDisplay.SetAccumulatedCostToday(id(accumulated_cost_today).state);  // Comment out if you want this to be calculated instead
 
           powerDisplay.SetCurrentPrice(id(price_now).state);
           powerDisplay.SetTodayMaxPrice(id(nordpool_max).state);
