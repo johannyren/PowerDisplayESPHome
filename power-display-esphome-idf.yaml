@@ -1,0 +1,289 @@
+esphome:
+  name: "power-display-esphome"
+
+  includes:
+    - power_display_idf.h  
+
+esp32:
+  board: esp32dev
+  framework:
+    type: esp-idf
+
+
+# Enable logging
+logger:
+  logs:
+    component: ERROR
+	
+# Enable Home Assistant API
+api:
+  encryption:
+    key: !secret encryption_key
+
+ota:
+  password: !secret ota_password
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Power-Display Fallback Hotspot"
+    password: !secret fallback_password
+
+time:
+  - platform: homeassistant
+    id: homeassistant_time
+
+font: 
+  # gfonts://family[@weight]
+  - file: "gfonts://Mukta@700"
+    id: large_text
+    size: 38
+    glyphs:
+      ['&', '@', '!', ',', '.', '"', '%', '(', ')', '+', '-', '_', ':', '°', '0',
+       '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E',
+       'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S',
+       'T', 'U', 'V', 'W', 'X', 'Y', 'Z', ' ', 'a', 'b', 'c', 'd', 'e', 'f',
+       'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't',
+       'u', 'v', 'w', 'x', 'y', 'z','å', 'ä', 'ö', '/']    
+
+  # gfonts://family[@weight]
+  - file: "gfonts://Roboto@400"
+    id: energy_text
+    size: 18
+
+  # gfonts://family[@weight]
+  - file: "gfonts://Roboto@400"
+    id: price_text
+    size: 22
+
+  # gfonts://family[@weight]
+  - file: "gfonts://Source+Sans+Pro@400"
+    id: small_text
+    size: 10
+
+color:
+  - id: my_grey
+    red: 30%
+    green: 30%
+    blue: 30%
+    white: 50%
+
+  # #800000
+  # 128,0,0
+  - id: COLOR_CSS_MAROON
+    red:   0.5020
+    green: 0.0000
+    blue:  0.0000
+    white: 0.0000
+
+  # #ff0000
+  # 255,0,0
+  - id: COLOR_CSS_RED
+    red:   1.0000
+    green: 0.0000
+    blue:  0.0000
+    white: 0.0000
+
+  # #ffa500
+  # 255,165,0
+  - id: COLOR_CSS_ORANGE
+    red:   1.0000
+    green: 0.6471
+    blue:  0.0000
+    white: 0.0000
+
+
+  # #adff2f
+  # 173,255,47
+  - id: COLOR_CSS_GREENYELLOW
+    red:   0.6784
+    green: 1.0000
+    blue:  0.1843
+    white: 0.0000
+
+  # #008000
+  # 0,128,0
+  - id: COLOR_CSS_GREEN
+    red:   0.0000
+    green: 0.5020
+    blue:  0.0000
+    white: 0.0000
+
+  # #006400
+  # 0,100,0
+  - id: COLOR_CSS_DARKGREEN
+    red:   0.0000
+    green: 0.3922
+    blue:  0.0000
+    white: 0.0000
+
+  # #f5f5f5
+  # 245,245,245
+  - id: COLOR_CSS_WHITESMOKE
+    red:   0.9608
+    green: 0.9608
+    blue:  0.9608
+    white: 0.0000
+
+# "Icons made by Freepik from www.flaticon.com"
+image:
+  - file: "solar_energy32.png"
+    id: solar_power
+    type: RGB24
+    #resize: 32x32
+  - file: "electrical_tower32.png"
+    id: grid_power
+    type: RGB24
+    #resize: 32x32
+
+# Define sensors in HomeAssistant that we use for display
+sensor:
+  # Current import (unit is W - if you meter is using kW then it needs conversion)
+  - platform: homeassistant
+    id: import_el
+    entity_id: sensor.momentary_active_import
+
+  # Current export (if having solar production or similar, otherwise comment this out)    
+  - platform: homeassistant
+    id: export_el
+    entity_id: sensor.momentary_active_export
+
+  # Electricity prices from NordPool. Expecting Home Assistant NordPool Integration. https://github.com/custom-components/nordpool
+  - platform: homeassistant
+    id: nordpool_max  
+    entity_id: sensor.nordpool
+    attribute: max
+
+  # // From NordPool, but you can also use Tibber etc.
+  - platform: homeassistant
+    id: price_now
+    entity_id: sensor.electricity_price_langhallagatan_51b
+
+  # Utility meter template in HomeAssistant. See example below (goes into configuration.yaml in HA.)
+  # If you have a sensor from tibber, use that instead. 
+  # For example entity_id: accumulated_consumption_langhallagatan_51b
+  - platform: homeassistant
+    id: consumption_today
+    entity_id: accumulated_consumption_langhallagatan_51b
+
+  # If you have a sensor in home assistant for accumulated cost today. If not, remove the following lines.
+  # You also have to make changes below in the lambda according to the intructions in that section.
+  - platform: homeassistant
+    id: accumulated_cost_today
+    entity_id: sensor.accumulated_cost_langhallagatan_51b
+
+  # Example:
+  # utility_meter:
+  # produktion_huset_per_dag:
+  #   source: sensor.cumulative_active_export
+  #   cycle: daily
+  
+
+text_sensor:
+  - platform: homeassistant   # Nordpool
+    id: nordpool_today
+    entity_id: sensor.nordpool
+    attribute: today
+  - platform: homeassistant   # Nordpool
+    id: nordpool_tomorrow
+    entity_id: sensor.nordpool
+    attribute: tomorrow
+
+spi:
+  clk_pin: 26 #SCL
+  mosi_pin: 27 #SDA
+
+# Define a PWM output on the ESP32
+output:
+  - platform: ledc
+    pin: 25
+    id: gpio_backlight_pwm
+
+# Define a monochromatic, dimmable light for the backlight
+light:
+  - platform: monochromatic
+    output: gpio_backlight_pwm
+    name: "Power Display Backlight"
+    id: back_light
+    restore_mode: ALWAYS_ON
+    
+# Note: library has been renamed from ili9341 to ili9xxx in ESPHome 2023.3.0. Use old name if using older version
+display:
+  - platform: ili9xxx
+    model: TFT 2.4
+    id: mydisplay
+    cs_pin: 13
+    dc_pin: 14
+    reset_pin: 33
+    transform:
+      swap_xy: false
+      mirror_x: false
+      mirror_y: true
+    update_interval: 10s
+
+    pages:
+      - id: page1
+        lambda: |-
+
+          static PowerDisplay powerDisplay;  
+  
+          // Unit is W - if your meter is reporting kW then it needs conversion (multiply value by 1000)
+          powerDisplay.SetCurrentPower((id(import_el).state - id(export_el).state));  // Use if using solar production
+          // powerDisplay.SetCurrentPower(id(import_el).state);  // Use if not using any solar production
+
+          // powerDisplay.SetAccumulatedCostToday(id(accumulated_cost_today).state);  // Use if you have a sensor with the accumulated cost for today from Tibber
+          
+          powerDisplay.SetCurrentPrice(id(price_now).state);
+          powerDisplay.SetTodayMaxPrice(id(nordpool_max).state);
+          powerDisplay.SetTodaysPrices(id(nordpool_today).state.c_str());
+          powerDisplay.SetTomorrowsPrices(id(nordpool_tomorrow).state.c_str());
+          powerDisplay.WriteDailyEnergy(id(consumption_today).state);
+          powerDisplay.DisplayIcons(&it, 10, 10);
+          powerDisplay.WritePowerText(&it, 120, 40);
+          powerDisplay.WriteDailyAmount(&it, 120, 75, id(COLOR_CSS_WHITESMOKE));
+          powerDisplay.CreateGraph(&it, 15, 115, 220, 100, my_grey);
+          powerDisplay.SetGraphScale(0, 24, 0);
+          powerDisplay.SetGraphGrid(&it, 0, 2, 0, 1, my_grey);
+          powerDisplay.WriteTimeLine(&it, id(homeassistant_time).now().hour, id(homeassistant_time).now().minute, id(COLOR_CSS_WHITESMOKE));
+          powerDisplay.SetPrices("today");
+          powerDisplay.SetPrices("tomorrow");
+          powerDisplay.DrawPriceGraph(&it);
+          powerDisplay.WritePriceText(&it, 120, 297);
+
+      - id: page2
+        lambda: |-
+
+          static PowerDisplay powerDisplay;
+  
+          // Unit is W - if your meter is reporting kW then it needs conversion (multiply value by 1000)
+          // powerDisplay.SetCurrentPower((id(import_el).state - id(export_el).state));  // Use if using solar production
+          powerDisplay.SetCurrentPower(id(import_el).state);  // Use if not using any solar production
+
+          // powerDisplay.SetAccumulatedCostToday(id(accumulated_cost_today).state);  // Use if you have a sensor with the accumulated cost for today from Tibber
+
+          powerDisplay.SetCurrentPrice(id(price_now).state);
+          powerDisplay.SetTodayMaxPrice(id(nordpool_max).state);
+          powerDisplay.SetTodaysPrices(id(nordpool_today).state);
+          powerDisplay.SetTomorrowsPrices(id(nordpool_tomorrow).state);
+          powerDisplay.DisplayIcons(&it, 10, 10);
+          powerDisplay.WritePowerText(&it, 120, 40);
+          powerDisplay.WritePriceInfo(&it, 120, 75);
+          powerDisplay.CreateGraph(&it, 15, 115, 220, 100, my_grey);
+          powerDisplay.SetGraphScaleTomorrow(0, 24, 0);
+          powerDisplay.SetGraphGrid(&it, 0, 2, 0, 1, my_grey);
+          powerDisplay.SetPrices("today");
+          powerDisplay.SetPrices("tomorrow");
+          powerDisplay.DrawPriceGraphTomorrow(&it);
+          powerDisplay.WritePriceText(&it, 120, 297);
+
+interval:
+  - interval: 5s
+    then:
+      - display.page.show_next: mydisplay
+      - component.update: mydisplay
+    
+captive_portal:
+    
