@@ -221,6 +221,10 @@ public:
 
 		if(day == "tomorrow") {
 			prices = TomorrowsPrices;
+
+			if (prices == "") {
+				PriceVectorTomorrow.clear();
+			}
    			if (prices.length() > 10) {
 				prices.erase(0, 1);
 				prices.replace(prices.size() - 1, 1, " ");

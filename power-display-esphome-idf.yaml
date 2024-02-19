@@ -240,8 +240,8 @@ display:
           
           powerDisplay.SetCurrentPrice(id(price_now).state);
           powerDisplay.SetTodayMaxPrice(id(nordpool_max).state);
-          powerDisplay.SetTodaysPrices(id(nordpool_today).state.c_str());
-          powerDisplay.SetTomorrowsPrices(id(nordpool_tomorrow).state.c_str());
+          powerDisplay.SetTodaysPrices(id(nordpool_today).state);
+          powerDisplay.SetTomorrowsPrices(id(nordpool_tomorrow).state);
           powerDisplay.WriteDailyEnergy(id(consumption_today).state);
           powerDisplay.DisplayIcons(&it, 10, 10);
           powerDisplay.WritePowerText(&it, 120, 40);
