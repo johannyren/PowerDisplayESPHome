@@ -153,8 +153,8 @@ public:
 
 	// Write info about min and max price tomorrow
 	void WritePriceInfo(display::Display *buff, int x, int y) {
-		buff->printf(x, y, &id(energy_text), PriceColour(tomorrowsMinPrice), TextAlign::BASELINE_CENTER, "Imorgon min: %.2f kr", tomorrowsMinPrice);
-		buff->printf(x, y+23, &id(energy_text), PriceColour(tomorrowsMaxPrice), TextAlign::BASELINE_CENTER, "Imorgon max: %.2f kr", tomorrowsMaxPrice);
+		buff->printf(x, y, &id(energy_text), PriceColour(tomorrowsMinPrice), TextAlign::BASELINE_CENTER, "Imorgon min: %.2f kr/kWh", tomorrowsMinPrice);
+		buff->printf(x, y+23, &id(energy_text), PriceColour(tomorrowsMaxPrice), TextAlign::BASELINE_CENTER, "Imorgon max: %.2f kr/kWh", tomorrowsMaxPrice);
 	}
 
 	// Draw the graph
