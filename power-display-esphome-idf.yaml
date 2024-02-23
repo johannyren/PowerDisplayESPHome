@@ -56,6 +56,13 @@ font:
   - file: "gfonts://Roboto@400"
     id: energy_text
     size: 18
+    glyphs:
+      ['&', '@', '!', ',', '.', '"', '%', '(', ')', '+', '-', '_', ':', '°', '0',
+       '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E',
+       'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S',
+       'T', 'U', 'V', 'W', 'X', 'Y', 'Z', ' ', 'a', 'b', 'c', 'd', 'e', 'f',
+       'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't',
+       'u', 'v', 'w', 'x', 'y', 'z','å', 'ä', 'ö', '/']
 
   # gfonts://family[@weight]
   - file: "gfonts://Roboto@400"
@@ -230,14 +237,14 @@ display:
       - id: page1
         lambda: |-
 
-          static PowerDisplay powerDisplay;  
+          static PowerDisplay powerDisplay;
   
           // Unit is W - if your meter is reporting kW then it needs conversion (multiply value by 1000)
           powerDisplay.SetCurrentPower((id(import_el).state - id(export_el).state));  // Use if using solar production
           // powerDisplay.SetCurrentPower(id(import_el).state);  // Use if not using any solar production
 
-          powerDisplay.SetAccumulatedCostToday(id(accumulated_cost_today).state);  // Comment out if you want this to be calculated instead
-          
+          powerDisplay.SetAccumulatedCostToday(id(accumulated_cost_today).state);  // Use if you have a sensor with the accumulated cost for today from Tibber
+
           powerDisplay.SetCurrentPrice(id(price_now).state);
           powerDisplay.SetTodayMaxPrice(id(nordpool_max).state);
           powerDisplay.SetTodaysPrices(id(nordpool_today).state);
@@ -259,19 +266,12 @@ display:
         lambda: |-
 
           static PowerDisplay powerDisplay;
-  
-          // Unit is W - if your meter is reporting kW then it needs conversion (multiply value by 1000)
-          // powerDisplay.SetCurrentPower((id(import_el).state - id(export_el).state));  // Use if using solar production
-          powerDisplay.SetCurrentPower(id(import_el).state);  // Use if not using any solar production
-
-          powerDisplay.SetAccumulatedCostToday(id(accumulated_cost_today).state);  // Comment out if you want this to be calculated instead
 
           powerDisplay.SetCurrentPrice(id(price_now).state);
           powerDisplay.SetTodayMaxPrice(id(nordpool_max).state);
           powerDisplay.SetTodaysPrices(id(nordpool_today).state);
           powerDisplay.SetTomorrowsPrices(id(nordpool_tomorrow).state);
-          powerDisplay.DisplayIcons(&it, 10, 10);
-          powerDisplay.WritePowerText(&it, 120, 40);
+          powerDisplay.WriteTomorrowText(&it, 120, 40);
           powerDisplay.WritePriceInfo(&it, 120, 75);
           powerDisplay.CreateGraph(&it, 15, 115, 220, 100, my_grey);
           powerDisplay.SetGraphScaleTomorrow(0, 24, 0);
@@ -279,7 +279,6 @@ display:
           powerDisplay.SetPrices("today");
           powerDisplay.SetPrices("tomorrow");
           powerDisplay.DrawPriceGraphTomorrow(&it);
-          powerDisplay.WritePriceText(&it, 120, 297);
 
 interval:
   - interval: 5s

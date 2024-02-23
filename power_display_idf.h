@@ -1,4 +1,5 @@
 #include <sstream>
+#include <numeric>
 #include "esphome.h"
 
 // Define the price levels (SEK/kWh)
@@ -17,7 +18,7 @@
 #define EXTREMELY_EXPENSIVE_TEXT "Extremt dyrt"
 
 // Global variables. Needed to retain values after reboot
-double currentPower, currentPrice, todayMaxPrice, dailyEnergy, accumulatedcosttoday, tomorrowsMaxPrice, tomorrowsMinPrice;
+double currentPower, currentPrice, todayMaxPrice, dailyEnergy, accumulatedcosttoday, tomorrowsMaxPrice, tomorrowsMinPrice, tomorrowsAverage;
 std::string TodaysPrices, TomorrowsPrices;
 	
 // PowerDisplay class:
@@ -120,6 +121,12 @@ public:
 	void WritePowerText(display::Display *buff, int x, int y) {	
 		buff->printf(x, y, &id(large_text), PriceColour(currentPrice), TextAlign::BASELINE_CENTER, "%.0f W", currentPower);		
 	}
+
+	// Display text at the top of the second page
+	void WriteTomorrowText(display::Display *buff, int x, int y) {	
+		buff->print(x, y, &id(large_text), COLOR_CSS_WHITESMOKE, TextAlign::BASELINE_CENTER, "I morgon");		
+	}
+
 	// Display current price and the price level
 	void WritePriceText(display::Display *buff, int x, int y) {
 		
@@ -136,11 +143,13 @@ public:
 		
 		buff->printf(x, y, &id(large_text), PriceColour(currentPrice), TextAlign::BASELINE_CENTER, "%s", price.c_str());		
 	}
+
 	// Write the timeline on the graph
 	void WriteTimeLine(display::Display *buff, double hour, double minute, Color color = COLOR_ON) {
 		double timeLineVal = hour + (minute/60);
 		buff->line(xPos + timeLineVal*xFactor, yPos, xPos + timeLineVal*xFactor, yPos+graphHeight, color);
 	}
+
 	// Write energy consumed so far today
 	void WriteDailyAmount(display::Display *buff, int x, int y, Color color = COLOR_ON) {
 		buff->printf(x, y, &id(energy_text), color, TextAlign::BASELINE_CENTER, "Idag: %.1f kWh", dailyEnergy);
@@ -151,10 +160,24 @@ public:
 			}				
 	}
 
-	// Write info about min and max price tomorrow
+	// Write info about min, max and average price tomorrow
 	void WritePriceInfo(display::Display *buff, int x, int y) {
-		buff->printf(x, y, &id(energy_text), PriceColour(tomorrowsMinPrice), TextAlign::BASELINE_CENTER, "Imorgon min: %.2f kr/kWh", tomorrowsMinPrice);
-		buff->printf(x, y+23, &id(energy_text), PriceColour(tomorrowsMaxPrice), TextAlign::BASELINE_CENTER, "Imorgon max: %.2f kr/kWh", tomorrowsMaxPrice);
+		buff->printf(x, y, &id(energy_text), PriceColour(tomorrowsMinPrice), TextAlign::BASELINE_CENTER, "Lägsta pris: %.2f kr/kWh", tomorrowsMinPrice);
+		buff->printf(x, y+23, &id(energy_text), PriceColour(tomorrowsMaxPrice), TextAlign::BASELINE_CENTER, "Högsta pris: %.2f kr/kWh", tomorrowsMaxPrice);
+		buff->printf(x, y+182, &id(price_text), PriceColour(tomorrowsAverage), TextAlign::BASELINE_CENTER, "Snitt %.2f kr/kWh", tomorrowsAverage);
+
+		if (!PriceVectorTomorrow.empty()) {
+			std::string price;
+			if (inRange(tomorrowsAverage, EXTREMELY_EXPENSIVE, 100)) {price = EXTREMELY_EXPENSIVE_TEXT;}
+			else if (inRange(tomorrowsAverage, VERY_EXPENSIVE, EXTREMELY_EXPENSIVE)){price = VERY_EXPENSIVE_TEXT;}
+			else if (inRange(tomorrowsAverage, EXPENSIVE, VERY_EXPENSIVE)){price = EXPENSIVE_TEXT;}
+			else if (inRange(tomorrowsAverage, NORMAL, EXPENSIVE)){price = NORMAL_TEXT;}
+			else if (inRange(tomorrowsAverage, CHEAP, NORMAL)){price = CHEAP_TEXT;}
+			else if (inRange(tomorrowsAverage, VERY_CHEAP, CHEAP)){price = VERY_CHEAP_TEXT;}
+			else if (inRange(tomorrowsAverage, -100, VERY_CHEAP)){price = BELOW_VERY_CHEAP_TEXT;} 		
+		
+			buff->printf(x, y+222, &id(large_text), PriceColour(currentPrice), TextAlign::BASELINE_CENTER, "%s", price.c_str());
+		}
 	}
 
 	// Draw the graph
@@ -182,12 +205,19 @@ public:
 		if (!PriceVectorTomorrow.empty()) {
 		tomorrowsMaxPrice = *max_element(PriceVectorTomorrow.begin(), PriceVectorTomorrow.end());
 		tomorrowsMinPrice = *min_element(PriceVectorTomorrow.begin(), PriceVectorTomorrow.end());
+		tomorrowsAverage = accumulate(PriceVectorTomorrow.begin(), PriceVectorTomorrow.end() ,0.0) / PriceVectorTomorrow.size();
 
 		for (int priceCount=0;priceCount<24;priceCount++) {
 			price = PriceVectorTomorrow.at(priceCount);
 			lastprice = AddPrice(buff, priceCount, price, priceCount-1, lastprice);
 			}
 		}
+		if (PriceVectorTomorrow.empty()) {
+			tomorrowsMaxPrice = 0;
+			tomorrowsMinPrice = 0;
+			tomorrowsAverage = 0;
+		}
+
 	}
 
 	// Deserialize the JSON string from NordPool and put it into two vectors
@@ -221,10 +251,11 @@ public:
 
 		if(day == "tomorrow") {
 			prices = TomorrowsPrices;
-
-			if (prices == "") {
+			
+			if (prices == "" || prices == "[]") {
 				PriceVectorTomorrow.clear();
 			}
+
    			if (prices.length() > 10) {
 				prices.erase(0, 1);
 				prices.replace(prices.size() - 1, 1, " ");
