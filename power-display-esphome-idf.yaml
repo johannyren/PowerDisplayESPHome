@@ -272,10 +272,10 @@ display:
           powerDisplay.SetTodaysPrices(id(nordpool_today).state);
           powerDisplay.SetTomorrowsPrices(id(nordpool_tomorrow).state);
           powerDisplay.WriteTomorrowText(&it, 120, 40);
-          powerDisplay.WritePriceInfo(&it, 120, 75);
           powerDisplay.CreateGraph(&it, 15, 115, 220, 100, my_grey);
           powerDisplay.SetGraphScaleTomorrow(0, 24, 0);
           powerDisplay.SetGraphGrid(&it, 0, 2, 0, 1, my_grey);
+          powerDisplay.WritePriceInfo(&it, 120, 75);
           powerDisplay.SetPrices("today");
           powerDisplay.SetPrices("tomorrow");
           powerDisplay.DrawPriceGraphTomorrow(&it);
