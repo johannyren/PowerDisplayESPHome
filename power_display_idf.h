@@ -180,7 +180,6 @@ public:
 		}
 
 		if (PriceVectorTomorrow.empty()) {
-			// buff->filled_rectangle(60, y+70, 120, 40, COLOR_OFF);
 			buff->print(x, y+100, &id(large_text), my_grey, TextAlign::BASELINE_CENTER, "No data");
 			}
 	}
