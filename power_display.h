@@ -271,7 +271,9 @@ private:
 	void setHeigh(int height) {graphHeight = height;}
 	
 	void DrawGraphLine(display::Display *buff, double x1, double x2, double y1, double y2, Color color = COLOR_ON) {
-		buff->line(xPos + x1*xFactor, yPos+graphHeight-(y1*yFactor), xPos + x2*xFactor, yPos+graphHeight-(y2*yFactor), color);		
+		buff->line(xPos + x1*xFactor, yPos+graphHeight-(y1*yFactor), xPos + x2*xFactor, yPos+graphHeight-(y2*yFactor), color);
+		buff->line(xPos + x1*xFactor, yPos+1+graphHeight-(y1*yFactor), xPos + x2*xFactor, yPos+1+graphHeight-(y2*yFactor), color);
+		buff->line(xPos + x1*xFactor, yPos+2+graphHeight-(y1*yFactor), xPos + x2*xFactor, yPos+2+graphHeight-(y2*yFactor), color);
 //		ESP_LOGD("GraphGrid x1: ", String(xPos + x1*xFactor).c_str());
 	}
 

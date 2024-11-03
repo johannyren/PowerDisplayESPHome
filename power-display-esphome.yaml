@@ -31,6 +31,7 @@ api:
     key: !secret encryption_key
 
 ota:
+  - platform: esphome
   password: !secret ota_password
 
 wifi:
@@ -222,6 +223,7 @@ display:
     reset_pin: 33
     rotation: 180
     update_interval: 10s
+    invert_colors: false
 
 
     lambda: |-
