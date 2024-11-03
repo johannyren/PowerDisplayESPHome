@@ -24,7 +24,7 @@ esp32:
 logger:
   logs:
     component: ERROR
-	
+
 # Enable Home Assistant API
 api:
   encryption:
