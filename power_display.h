@@ -94,19 +94,20 @@ public:
 			todayMaxPrice = LoadValueFromNvm("TodayMaxPrice");
 		double  yMax = todayMaxPrice;
 		xFactor = graphWidth / (xMax-xMin);
-		yFactor = graphHeight / (yMax-yMin);
+		xFactorGrid = graphWidth / (xMax/4-xMin);
+		yFactor = graphHeight / (yMax-yMin);	
 	}
 	
 	void SetGraphGrid(display::Display *buff, double xLow, double xInterval, double yLow, double yInterval, Color color = COLOR_ON) {
 		double xLabel=0, yLabel = 0;
 		double i2;
 		Color labelColor = COLOR_CSS_WHITESMOKE;
-		for(double i=(xPos + xLow*xFactor); i <= graphWidth+xPos; i+= xInterval*xFactor) {
+		for(double i=(xPos + xLow*xFactorGrid); i <= graphWidth+xPos; i+= xInterval*xFactorGrid) {
 //			ESP_LOGD("GraphGrid i: ", String(i).c_str());
 			buff->line(i, yPos, i, yPos+graphHeight, color);
 			buff->printf(i-4, yPos+graphHeight+10, &id(small_text),labelColor , TextAlign::BASELINE_LEFT, "%.0f", xLabel);
 			xLabel += xInterval;
-			i2 += xInterval*xFactor;
+			i2 += xInterval*xFactorGrid;
 		}
 		// For the last hour...
 		buff->printf(i2+8, yPos+graphHeight+10, &id(small_text),labelColor , TextAlign::BASELINE_LEFT, "%.0f", xLabel);
@@ -119,7 +120,8 @@ public:
 			yLabel += yInterval;
 		}
 	}
-	
+
+
 	// Functions to set the values from Home Assistant
 	
 	void SetCurrentPower(double power) {
@@ -183,85 +185,94 @@ public:
 		
 		buff->printf(x, y, &id(large_text), PriceColour(currentPrice), TextAlign::BASELINE_CENTER, "%s", price.c_str());		
 	}
+	
+	
 	// Write the timeline on the graph
 	void WriteTimeLine(display::Display *buff, double hour, double minute, Color color = COLOR_ON) {
 		double timeLineVal = hour + (minute/60);
-		buff->line(xPos + timeLineVal*xFactor, yPos, xPos + timeLineVal*xFactor, yPos+graphHeight, color);
+		buff->line(xPos + timeLineVal*xFactorGrid, yPos, xPos + timeLineVal*xFactorGrid, yPos+graphHeight, color);
 	}
+
+
 	// Write energy consumed so far today
 	void WriteDailyAmount(display::Display *buff, int x, int y, Color color = COLOR_ON) {
 		if (isnan(dailyEnergy) || dailyEnergy == 0) {			
 			dailyEnergy = LoadValueFromNvm("DailyEnergy");		
 		}
-		buff->printf(x, y, &id(energy_text), color, TextAlign::BASELINE_CENTER, "Idag: %.1f kWh", dailyEnergy);
-		buff->printf(x, y+23, &id(energy_text), color, TextAlign::BASELINE_CENTER, "Kostnad: %.2f kr", CalculateAccumulatedCost(currentPrice, dailyEnergy));				
+		buff->printf(x, y, &id(energy_text), color, TextAlign::BASELINE_CENTER, "Idag: %.1f kWh", dailyEnergy);		
+		//buff->printf(x, y+23, &id(energy_text), color, TextAlign::BASELINE_CENTER, "Kostnad: %.2f kr", CalculateAccumulatedCost(currentPrice, dailyEnergy));				
 	}
 
-	// Draw the graph
-	void DrawPriceGraph (display::Display *buff) {
-		double lastprice = 0;
-		double price;
+
+
+void DrawPriceGraph (display::Display *buff) {
+    double lastprice = 0;
+    double price;
   
-		for (int priceCount=0;priceCount<24;priceCount++)
-		{
-			price = priceArray[priceCount];
-			lastprice = AddPrice(buff, priceCount, price,  priceCount-1,  lastprice);
-		}
-		// Add last piece if we know the price at midninght tomorrow
-		price = priceArrayTomorrow[0];
-		if (price > 0)
-			lastprice = AddPrice(buff, 24, price,  23,  lastprice);
-	}
+    // CHANGED: Loop through 96 quarters instead of 24 hours
+    for (int priceCount=0; priceCount<96; priceCount++)
+    {
+        price = priceArray[priceCount];
+        lastprice = AddPrice(buff, priceCount, price, priceCount-1, lastprice);
+//		ESP_LOGD("Quarter: ", String(priceCount).c_str());
+//		ESP_LOGD("Price: ", String(price).c_str());
+    }
+    // CHANGED: Add first quarter of tomorrow (index 96 connects to 95)
+    price = priceArrayTomorrow[0];
+    if (price > 0)
+        lastprice = AddPrice(buff, 96, price, 95, lastprice);
+}
 	
-	// Deserialize the JSON string from NordPool
-	void SetPrices(String day) {
-		String prices;
 
-		if (TodaysPrices == "")
-			TodaysPrices = LoadStringFromNvm("TodaysPrices");
-		
-		if(day == "tomorrow")
-			prices = TomorrowsPrices;
-		else
-			prices = TodaysPrices;
-		
-		prices.replace("[", "");
-		prices.replace("]", " ");
-		String array[25];
-		int r=0,t=0;
-		
-		for(int i=0;i<prices.length();i++)
-		{
-			if(prices[i] == ' ' || prices[i] == ',')
-			{
-			if (i-r > 1)
-			{
-				array[t] = prices.substring(r,i);
-				t++;
-			}
-			r = (i+1);
-			}
-		}
+void SetPrices(String day) {
+    String prices;
 
-		for(int k=0 ;k<=t ;k++)
-		{
-//		ESP_LOGD("SetPrices Prices: ", array[k].c_str());
-		if(day == "tomorrow")
-			priceArrayTomorrow[k] = array[k].toFloat();
-		else
-			priceArray[k] = array[k].toFloat();
-	  }
-	}
-	
+    if (TodaysPrices == "")
+        TodaysPrices = LoadStringFromNvm("TodaysPrices");
+    
+    if(day == "tomorrow")
+        prices = TomorrowsPrices;
+    else
+        prices = TodaysPrices;
+    
+    prices.replace("[", "");
+    prices.replace("]", " ");
+    
+    // CHANGED: Increased array size from [25] to [97] to handle 96 values
+    String array[97];
+    int r=0,t=0;
+    
+    for(int i=0;i<prices.length();i++)
+    {
+        if(prices[i] == ' ' || prices[i] == ',')
+        {
+            if (i-r > 1)
+            {
+                array[t] = prices.substring(r,i);
+                t++;
+            }
+            r = (i+1);
+        }
+    }
+
+    for(int k=0 ;k<=t ;k++)
+    {
+//        ESP_LOGD("SetPrices Prices: ", array[k].c_str());
+        if(day == "tomorrow")
+            priceArrayTomorrow[k] = array[k].toFloat();
+        else
+            priceArray[k] = array[k].toFloat();
+    }
+}	
 	
 private:
 	display::Display *vbuff;
 	
 	int graphWidth, graphHeight, xPos, yPos;
-	float xFactor, yFactor;
+	float xFactor, yFactor, xFactorGrid;
 	
-	double priceArray[50];
-	double priceArrayTomorrow[50];	
+	double priceArray[96];
+	double priceArrayTomorrow[96];	
 	double prevDailyEnergy, accumulatedCost;
 	String TomorrowsPrices;
 
@@ -271,10 +282,14 @@ private:
 	void setHeigh(int height) {graphHeight = height;}
 	
 	void DrawGraphLine(display::Display *buff, double x1, double x2, double y1, double y2, Color color = COLOR_ON) {
-		buff->line(xPos + x1*xFactor, yPos+graphHeight-(y1*yFactor), xPos + x2*xFactor, yPos+graphHeight-(y2*yFactor), color);
-		buff->line(xPos + x1*xFactor, yPos+1+graphHeight-(y1*yFactor), xPos + x2*xFactor, yPos+1+graphHeight-(y2*yFactor), color);
-		buff->line(xPos + x1*xFactor, yPos+2+graphHeight-(y1*yFactor), xPos + x2*xFactor, yPos+2+graphHeight-(y2*yFactor), color);
-//		ESP_LOGD("GraphGrid x1: ", String(xPos + x1*xFactor).c_str());
+	
+		buff->line(xPos + x1*xFactor, yPos+graphHeight-(y1*yFactor), xPos + x1*xFactor, yPos+graphHeight-(y2*yFactor), color);		
+		buff->line(xPos + x1*xFactor, yPos+graphHeight-(y2*yFactor), xPos + x2*xFactor, yPos+graphHeight-(y2*yFactor), color);		
+		buff->line(xPos+1 + x1*xFactor, yPos+1+graphHeight-(y1*yFactor), xPos+1 + x1*xFactor, yPos+1+graphHeight-(y2*yFactor), color);		
+		buff->line(xPos+1 + x1*xFactor, yPos+1+graphHeight-(y2*yFactor), xPos+1 + x2*xFactor, yPos+1+graphHeight-(y2*yFactor), color);		
+		
+//		ESP_LOGD("GraphGrid xPos: ", String(xPos).c_str());		
+//		ESP_LOGD("GraphGrid x1: ", String(xPos + x1*xFactor).c_str());		
 	}
 
 	double AddPrice(display::Display *buff, int hour, double price, int lastHour, double lastPrice)	{
@@ -304,6 +319,9 @@ private:
 		double nEnergyDelta = dailyEnergy - prevDailyEnergy; 	
 		prevDailyEnergy = dailyEnergy;
 		accumulatedCost += (nEnergyDelta * currentPrice);
+		ESP_LOGD("CalculateAccumulatedCost currentPrice: ", String(currentPrice).c_str());		
+		ESP_LOGD("CalculateAccumulatedCost dailyEnergy: ", String(dailyEnergy).c_str());		
+
 		//SaveValueToNvm("AccumulatedCost", accumulatedCost);
 		return accumulatedCost;
 	}

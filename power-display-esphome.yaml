@@ -144,11 +144,11 @@ color:
 image:
   - file: "solar_energy32.png"
     id: solar_power
-    type: RGB24
+    type: RGB
     #resize: 32x32
   - file: "electrical_tower32.png"
     id: grid_power
-    type: RGB24
+    type: RGB
     #resize: 32x32
 
 # Define sensors in HomeAssistant that we use for display
@@ -214,7 +214,7 @@ light:
     id: back_light
     restore_mode: ALWAYS_ON
     
-# Note: library has been renamed from ili9341 to ili9xxx in ESPHome 2023.3.0. Use old name if using older version
+
 display:
   - platform: ili9xxx
     model: TFT 2.4
@@ -224,6 +224,7 @@ display:
     rotation: 180
     update_interval: 10s
     invert_colors: false
+    color_palette: 8BIT
 
 
     lambda: |-
@@ -242,8 +243,8 @@ display:
      powerDisplay.DisplayIcons(&it, 10, 10);
      powerDisplay.WritePowerText(&it, 120, 40);
      powerDisplay.WriteDailyAmount(&it, 120, 75, id(COLOR_CSS_WHITESMOKE));
-     powerDisplay.CreateGraph(&it, 15, 115, 220, 100, my_grey);
-     powerDisplay.SetGraphScale(0, 24, 0);
+     powerDisplay.CreateGraph(&it, 15, 95, 220, 120, my_grey);
+     powerDisplay.SetGraphScale(0, 96, 0);
      powerDisplay.SetGraphGrid(&it, 0, 2, 0, 1, my_grey);
      powerDisplay.WriteTimeLine(&it, id(homeassistant_time).now().hour, id(homeassistant_time).now().minute, id(COLOR_CSS_WHITESMOKE));
      powerDisplay.SetPrices("today");
