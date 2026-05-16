@@ -216,15 +216,14 @@ light:
     
 
 display:
-  - platform: ili9xxx
-    model: TFT 2.4
+  - platform: mipi_spi
+    model: ILI9341
     cs_pin: 13
     dc_pin: 14
     reset_pin: 33
     rotation: 180
     update_interval: 10s
     invert_colors: false
-    color_palette: 8BIT
 
 
     lambda: |-

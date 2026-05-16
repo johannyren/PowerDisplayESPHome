@@ -21,7 +21,7 @@
 
 void SaveValueToNvm(String key, double value) {
 	ESP_LOGD((String("SaveValueToNvm : ") + key).c_str(), String(value).c_str());
-	Preferences preferences; 								// Create an instance of the preferences library
+	::Preferences preferences; 								// Create an instance of the preferences library
 	preferences.begin("my_partition", false);				// Open the preferences partition
 	preferences.putDouble(key.c_str(), value);		  		// Write the value to preferences
 	preferences.end();
@@ -29,14 +29,14 @@ void SaveValueToNvm(String key, double value) {
 
 void SaveStringToNvm(String key, String value) {
 	ESP_LOGD((String("SaveStringToNvm : ") + key).c_str(), value.c_str());
-	Preferences preferences; 								// Create an instance of the preferences library
+	::Preferences preferences; 								// Create an instance of the preferences library
 	preferences.begin("my_partition", false);				// Open the preferences partition
 	preferences.putString(key.c_str(), value);		  		// Write the value to preferences
 	preferences.end();
 }
 
 double LoadValueFromNvm(String key) {
-	Preferences preferences; 								// Create an instance of the preferences library
+	::Preferences preferences; 								// Create an instance of the preferences library
 	preferences.begin("my_partition", false);				// Open the preferences partition
 	double value = preferences.getDouble(key.c_str(), 42); 	// Read the value from preferences
 	preferences.end();
@@ -45,7 +45,7 @@ double LoadValueFromNvm(String key) {
 }
 
 String LoadStringFromNvm(String key) {
-	Preferences preferences; 								// Create an instance of the preferences library
+	::Preferences preferences; 								// Create an instance of the preferences library
 	preferences.begin("my_partition", false);				// Open the preferences partition
 	String value = preferences.getString(key.c_str(), ""); 	// Read the value from preferences
 	preferences.end();
